@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="PISK NOVA Student Management System">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 64 64%22><rect width=%2264%22 height=%2264%22 rx=%2212%22 fill=%22%23172a46%22/><text x=%2232%22 y=%2240%22 text-anchor=%22middle%22 font-family=%22Arial%22 font-size=%2222%22 font-weight=%22700%22 fill=%22white%22>PN</text></svg>">
+  <title>PISK NOVA | Student Management System</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <!-- Toasts replace most blocking alert boxes and are announced to screen readers. -->
+  <div id="toast-region" class="toast-region" aria-live="polite" aria-atomic="true"></div>
+
+  <!-- =============================== SMART LOGIN =============================== -->
+  <main id="login" class="login-page">
+    <section class="login-card" aria-labelledby="login-title">
+      <div class="brand-mark" aria-hidden="true">PN</div>
+      <p class="eyebrow">Student Management System</p>
+      <h1 id="login-title">Welcome to PISK NOVA</h1>
+      <p class="muted">Secure access for administrators and enrolled students.</p>
+
+      <form id="login-form" class="stack" novalidate>
+        <div class="notice">
+          <strong>Administrator:</strong> username and password<br>
+          <strong>Student:</strong> roll number and father's name
+        </div>
+
+        <div class="field">
+          <label for="login-id">Username or roll number</label>
+          <input id="login-id" name="loginId" type="text" autocomplete="username" required>
+        </div>
+
+        <div class="field">
+          <label for="login-pass">Password or father's name</label>
+          <div class="password-row">
+            <input id="login-pass" name="loginPass" type="password" autocomplete="current-password" required>
+            <button id="toggle-password" class="icon-button" type="button" aria-label="Show password">Show</button>
+          </div>
+        </div>
+
+        <button class="button button-primary button-full" type="submit">Secure login</button>
+        <p id="login-error" class="form-error hidden" role="alert"></p>
+      </form>
+      <p class="login-footer">FBISE-ready academic records • Local-first data storage</p>
+    </section>
+  </main>
+
+  <!-- ============================= ADMIN WORKSPACE ============================= -->
+  <div id="admin-app" class="app-shell hidden">
+    <aside class="sidebar" aria-label="Administrator navigation">
+      <div class="sidebar-brand">
+        <div class="brand-mark brand-mark-small" aria-hidden="true">PN</div>
+        <div>
+          <strong>PISK NOVA</strong>
+          <span>Administration</span>
+        </div>
+      </div>
+
+      <nav class="sidebar-nav">
+        <button class="nav-item active" type="button" data-section="overview">
+          <span aria-hidden="true">▦</span> Overview
+        </button>
+        <button class="nav-item" type="button" data-section="add-student">
+          <span aria-hidden="true">＋</span> Add result
+        </button>
+        <button class="nav-item" type="button" data-section="search">
+          <span aria-hidden="true">🔎</span> Search records
+        </button>
+        <button class="nav-item" type="button" data-section="data-tools">
+          <span aria-hidden="true">⇅</span> Backup & restore
+        </button>
+      </nav>
+
+      <button id="admin-logout" class="nav-item nav-logout" type="button">
+        <span aria-hidden="true">↪</span> Log out
+      </button>
+    </aside>
+
+    <header class="mobile-header">
+      <button id="menu-toggle" class="icon-button" type="button" aria-label="Open navigation">Menu</button>
+      <strong>PISK NOVA</strong>
+      <button id="mobile-logout" class="text-button" type="button">Log out</button>
+    </header>
+    <div id="sidebar-scrim" class="sidebar-scrim hidden" aria-hidden="true"></div>
+
+    <main class="workspace">
+      <!-- Overview -->
+      <section id="section-overview" class="workspace-section">
+        <header class="page-header">
+          <div>
+            <p class="eyebrow">Administration</p>
+            <h2>Dashboard overview</h2>
+            <p class="muted">A concise view of enrollment and academic performance.</p>
+          </div>
+          <button class="button button-primary" type="button" data-go-to="add-student">Add student result</button>
+        </header>
+
+        <div class="metric-grid" aria-label="Database summary">
+          <article class="metric-card">
+            <span class="metric-label">Total enrolled</span>
+            <strong id="metric-total">0</strong>
+            <span class="metric-foot">JSON + locally saved records</span>
+          </article>
+          <article class="metric-card">
+            <span class="metric-label">Highest percentage</span>
+            <strong id="metric-highest">0%</strong>
+            <span id="metric-top-student" class="metric-foot">No records available</span>
+          </article>
+          <article class="metric-card">
+            <span class="metric-label">Local records</span>
+            <strong id="metric-local">0</strong>
+            <span class="metric-foot">Included in backup exports</span>
+          </article>
+        </div>
+
+        <article class="panel">
+          <div class="panel-heading">
+            <div>
+              <h3>System status</h3>
+              <p class="muted">Core services available in this browser.</p>
+            </div>
+            <span class="status-badge">Operational</span>
+          </div>
+          <div class="status-list">
+            <div><span>Smart Login routing</span><strong>Enabled</strong></div>
+            <div><span>Dual-database merge</span><strong>Enabled</strong></div>
+            <div><span>FBISE field validation</span><strong>Enabled</strong></div>
+          </div>
+        </article>
+      </section>
+
+      <!-- Add result -->
+      <section id="section-add-student" class="workspace-section hidden">
+        <header class="page-header compact">
+          <div>
+            <p class="eyebrow">Academic records</p>
+            <h2>Calculate & save result</h2>
+            <p class="muted">All government identification fields are required for new records.</p>
+          </div>
+        </header>
+
+        <form id="student-form" novalidate>
+          <article class="panel">
+            <div class="section-heading">
+              <span class="step-number">01</span>
+              <div><h3>Student information</h3><p>Enrollment and FBISE identity details.</p></div>
+            </div>
+            <div class="form-grid">
+              <div class="field">
+                <label for="sname">Full name <span>*</span></label>
+                <input id="sname" type="text" autocomplete="name" required>
+              </div>
+              <div class="field">
+                <label for="sroll">Roll number <span>*</span></label>
+                <input id="sroll" type="text" required>
+              </div>
+              <div class="field">
+                <label for="sclass">Class / section <span>*</span></label>
+                <input id="sclass" type="text" placeholder="Example: 10th-B" required>
+              </div>
+              <div class="field">
+                <label for="incharge">Class incharge <span>*</span></label>
+                <input id="incharge" type="text" required>
+              </div>
+              <div class="field">
+                <label for="fbise-reg">FBISE registration number <span>*</span></label>
+                <input id="fbise-reg" type="text" placeholder="123456789 or SSC-I/2026/123456" required>
+                <small>6–16 digits, or 2–4 alphanumeric groups separated by “-” or “/”.</small>
+                <p id="fbise-reg-error" class="field-error hidden"></p>
+              </div>
+              <div class="field">
+                <label for="student-id">Student B-Form / Iqama number <span>*</span></label>
+                <input id="student-id" type="text" placeholder="35202-1234567-1 or 10-digit Iqama" required>
+                <small>CNIC/B-Form: 00000-0000000-0 • Iqama: 10 digits starting with 1 or 2.</small>
+                <p id="student-id-error" class="field-error hidden"></p>
+              </div>
+              <div class="field">
+                <label for="dob">Date of birth <span>*</span></label>
+                <input id="dob" type="date" required>
+                <p id="dob-error" class="field-error hidden"></p>
+              </div>
+            </div>
+          </article>
+
+          <article class="panel">
+            <div class="section-heading">
+              <span class="step-number">02</span>
+              <div><h3>Guardian information</h3><p>Parent identity and contact details.</p></div>
+            </div>
+            <div class="form-grid">
+              <div class="field">
+                <label for="sfather">Father's name <span>*</span></label>
+                <input id="sfather" type="text" required>
+              </div>
+              <div class="field">
+                <label for="father-id">Father's CNIC / Iqama number <span>*</span></label>
+                <input id="father-id" type="text" placeholder="35202-1234567-1 or 10-digit Iqama" required>
+                <p id="father-id-error" class="field-error hidden"></p>
+              </div>
+              <div class="field">
+                <label for="femail">Father's email</label>
+                <input id="femail" type="email" autocomplete="email" placeholder="name@example.com">
+                <p id="femail-error" class="field-error hidden"></p>
+              </div>
+            </div>
+          </article>
+
+          <article class="panel">
+            <div class="section-heading">
+              <span class="step-number">03</span>
+              <div><h3>Subject marks</h3><p>The existing 75 / 100 / 50 mark structure is preserved.</p></div>
+            </div>
+            <div class="marks-grid">
+              <div class="field"><label for="chem">Chemistry <span>/ 75</span></label><input id="chem" type="number" min="0" max="75" value="0" required></div>
+              <div class="field"><label for="compbio">Computer / Biology <span>/ 75</span></label><input id="compbio" type="number" min="0" max="75" value="0" required></div>
+              <div class="field"><label for="phys">Physics <span>/ 75</span></label><input id="phys" type="number" min="0" max="75" value="0" required></div>
+              <div class="field"><label for="math">Mathematics <span>/ 75</span></label><input id="math" type="number" min="0" max="75" value="0" required></div>
+              <div class="field"><label for="eng">English <span>/ 75</span></label><input id="eng" type="number" min="0" max="75" value="0" required></div>
+              <div class="field"><label for="urdu">Urdu <span>/ 75</span></label><input id="urdu" type="number" min="0" max="75" value="0" required></div>
+              <div class="field"><label for="isl">Islamiyat <span>/ 100</span></label><input id="isl" type="number" min="0" max="100" value="0" required></div>
+              <div class="field"><label for="tar">Tarjuma-tul-Quran <span>/ 50</span></label><input id="tar" type="number" min="0" max="50" value="0" required></div>
+            </div>
+          </article>
+
+          <div class="form-actions">
+            <button class="button button-secondary" type="reset">Clear form</button>
+            <button class="button button-primary" type="submit">Validate & save result</button>
+          </div>
+        </form>
+
+        <article id="saved-preview" class="panel hidden">
+          <div class="panel-heading">
+            <div><h3>Saved result preview</h3><p class="muted">The record is now available through Smart Login and search.</p></div>
+            <button id="print-preview" class="button button-secondary" type="button">Print result</button>
+          </div>
+          <div id="saved-preview-content"></div>
+        </article>
+      </section>
+
+      <!-- Search -->
+      <section id="section-search" class="workspace-section hidden">
+        <header class="page-header compact">
+          <div>
+            <p class="eyebrow">Dual database</p>
+            <h2>Search student records</h2>
+            <p class="muted">Results update automatically after a short pause while typing.</p>
+          </div>
+        </header>
+
+        <article class="panel">
+          <div class="search-bar">
+            <div class="field">
+              <label for="admin-search">Search by roll number, name, father, class, or FBISE number</label>
+              <input id="admin-search" type="search" placeholder="Start typing to filter records…" autocomplete="off">
+            </div>
+            <span id="search-count" class="result-count">0 records</span>
+          </div>
+          <div id="search-results" class="record-list" aria-live="polite"></div>
+        </article>
+      </section>
+
+      <!-- Backup and restore -->
+      <section id="section-data-tools" class="workspace-section hidden">
+        <header class="page-header compact">
+          <div>
+            <p class="eyebrow">Data resilience</p>
+            <h2>Backup & restore</h2>
+            <p class="muted">Export or restore records saved in this browser's LocalStorage.</p>
+          </div>
+        </header>
+
+        <div class="tool-grid">
+          <article class="panel tool-card">
+            <span class="tool-icon" aria-hidden="true">↓</span>
+            <h3>Export database</h3>
+            <p>Download a timestamped JSON backup containing all locally saved student records.</p>
+            <button id="export-database" class="button button-primary" type="button">Download JSON backup</button>
+          </article>
+
+          <article class="panel tool-card">
+            <span class="tool-icon" aria-hidden="true">↑</span>
+            <h3>Import database</h3>
+            <p>Validate and restore a PISK NOVA JSON backup. Existing local records can be merged or replaced.</p>
+            <label class="button button-secondary file-button" for="import-file">Choose JSON file</label>
+            <input id="import-file" class="visually-hidden" type="file" accept=".json,application/json">
+          </article>
+        </div>
+
+        <article id="import-review" class="panel hidden">
+          <h3>Import review</h3>
+          <p id="import-summary" class="muted"></p>
+          <div class="form-actions left">
+            <button id="cancel-import" class="button button-secondary" type="button">Cancel</button>
+            <button id="merge-import" class="button button-secondary" type="button">Merge records</button>
+            <button id="replace-import" class="button button-danger" type="button">Replace local database</button>
+          </div>
+        </article>
+      </section>
+    </main>
+  </div>
+
+  <!-- ============================ STUDENT DASHBOARD ============================ -->
+  <main id="student-app" class="student-page hidden">
+    <header class="student-topbar">
+      <div class="sidebar-brand">
+        <div class="brand-mark brand-mark-small" aria-hidden="true">PN</div>
+        <div><strong>PISK NOVA</strong><span>Student portal</span></div>
+      </div>
+      <button id="student-logout" class="text-button" type="button">Log out</button>
+    </header>
+
+    <section class="student-workspace">
+      <header class="page-header">
+        <div>
+          <p class="eyebrow">Academic record</p>
+          <h2>My result card</h2>
+          <p class="muted">View or print your official academic summary.</p>
+        </div>
+        <button id="print-student-result" class="button button-primary" type="button">Print / Save as PDF</button>
+      </header>
+      <div id="student-result-box"></div>
+    </section>
+  </main>
+
+  <!-- Only this A4 report is visible when window.print() is called. -->
+  <section id="print-area" class="print-area" aria-hidden="true"></section>
+
+  <script src="app.js"></script>
+</body>
+</html>
