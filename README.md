@@ -1,1 +1,0 @@
-# Pisk-Nova
